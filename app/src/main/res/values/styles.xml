@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CalculatorButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="CalculatorButton.Default">
+        <item name="backgroundTint">@color/button_default_bg</item>
+        <item name="android:textColor">@color/button_default_text</item>
+    </style>
+
+    <style name="CalculatorButton.Special">
+        <item name="backgroundTint">@color/button_special_bg</item>
+        <item name="android:textColor">@color/button_special_text</item>
+    </style>
+
+    <style name="CalculatorButton.Operation">
+        <item name="backgroundTint">@color/button_operation_bg</item>
+        <item name="android:textColor">@color/button_operation_text</item>
+        <item name="android:textSize">28sp</item>
+    </style>
+</resources>

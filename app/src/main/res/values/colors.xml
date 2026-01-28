@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Calculator Colors (Light) -->
+    <color name="calculator_background">#F1F2F3</color>
+    <color name="calculator_text">#000000</color>
+    
+    <color name="button_default_bg">#FFFFFF</color>
+    <color name="button_special_bg">#D2D3DA</color>
+    <color name="button_operation_bg">#4B5EFC</color>
+
+    <color name="button_default_text">#000000</color>
+    <color name="button_special_text">#000000</color>
+    <color name="button_operation_text">#FFFFFF</color>
+</resources>
