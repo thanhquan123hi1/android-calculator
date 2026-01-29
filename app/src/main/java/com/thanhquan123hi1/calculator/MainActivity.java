@@ -49,8 +49,7 @@ public class MainActivity extends AppCompatActivity {
         render();
     }
 
-    /* ================= THEME ================= */
-
+    //theme
     private void initTheme() {
         int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         themeSwitch.setChecked(mode == Configuration.UI_MODE_NIGHT_YES);
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    /* ================= BUTTONS ================= */
+    //buttons
 
     private void bindButtons() {
 
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /* ================= INPUT ================= */
+    //input
 
     private void appendDigit(String d) {
 
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         render();
     }
 
-    /* ================= EQUALS ================= */
+    //dau bang
 
     private void onEquals() {
         Double v = evaluate();
@@ -176,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         isResultFinalized = true;
     }
 
-    /* ================= RENDER ================= */
+    //render
 
     private void render() {
         equationText.setText(expression);
@@ -190,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /* ================= EVALUATION ================= */
+    //danh gia
 
     private Double evaluate() {
         try {
@@ -261,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         return ("×".equals(op) || "/".equals(op)) ? 2 : 1;
     }
 
-    /* ================= UTIL ================= */
+    //ham check, reset
 
     private void resetAll() {
         expression = "";
