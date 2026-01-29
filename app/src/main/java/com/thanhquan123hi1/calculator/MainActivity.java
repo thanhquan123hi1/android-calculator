@@ -1,7 +1,10 @@
 package com.thanhquan123hi1.calculator;
 
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -19,12 +22,17 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private TextView equationText; // Input (raw)
-    private TextView resultText;   // Preview
+    private TextView resultText;   // Preview / Final
     private MaterialSwitch themeSwitch;
 
     private String expression = "";
+    private boolean isResultFinalized = false;
 
     private final DecimalFormat df = new DecimalFormat("#,###.########");
+
+    // UI constants
+    private static final float RESULT_PREVIEW_SIZE = 30f;
+    private static final float RESULT_FINAL_SIZE = 48f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
         initTheme();
         bindButtons();
+        resetResultStyle();
         render();
     }
+
+    /* ================= THEME ================= */
 
     private void initTheme() {
         int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -54,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     /* ================= BUTTONS ================= */
 
     private void bindButtons() {
+
         int[] nums = {
                 R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
                 R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9
@@ -81,10 +93,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.btnAC).setOnClickListener(v -> {
-            expression = "";
-            render();
-        });
+        findViewById(R.id.btnAC).setOnClickListener(v -> resetAll());
 
         findViewById(R.id.btnPlusMinus).setOnClickListener(v -> {
             toggleSign();
@@ -100,7 +109,13 @@ public class MainActivity extends AppCompatActivity {
     /* ================= INPUT ================= */
 
     private void appendDigit(String d) {
-        if ("Error".equals(resultText.getText().toString())) expression = "";
+
+        if (isResultFinalized) {
+            expression = "";
+            isResultFinalized = false;
+            resetResultStyle();
+            equationText.setVisibility(View.VISIBLE);
+        }
 
         String last = lastNumber();
         if ("0".equals(last) && !"0".equals(d)) {
@@ -112,16 +127,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void appendDot() {
+        if (isResultFinalized) return;
+
         String last = lastNumber();
-        if (last.isEmpty()) {
-            expression += "0.";
-        } else if (!last.contains(".")) {
-            expression += ".";
-        }
+        if (last.isEmpty()) expression += "0.";
+        else if (!last.contains(".")) expression += ".";
         render();
     }
 
     private void appendOperator(String op) {
+        if (isResultFinalized) {
+            isResultFinalized = false;
+            resetResultStyle();
+            equationText.setVisibility(View.VISIBLE);
+        }
+
         if (expression.isEmpty()) {
             if ("-".equals(op)) expression = "-";
             render();
@@ -130,23 +150,30 @@ public class MainActivity extends AppCompatActivity {
 
         char last = expression.charAt(expression.length() - 1);
         if (isOperator(last)) {
-            if ("-".equals(op) && last != '-') {
-                expression += "-"; // unary minus
-            } else {
-                expression = expression.substring(0, expression.length() - 1) + op;
-            }
+            expression = expression.substring(0, expression.length() - 1) + op;
         } else {
             expression += op;
         }
         render();
     }
 
+    /* ================= EQUALS ================= */
+
     private void onEquals() {
-        Double v = evaluatePreview();
-        if (v != null) {
-            expression = removeDotZero(v);
-        }
-        render();
+        Double v = evaluate();
+        if (v == null) return;
+
+        // FINAL RESULT
+        resultText.setText(df.format(v));
+        resultText.setAlpha(1f);
+        resultText.setTypeface(null, Typeface.BOLD);
+        resultText.setTextSize(TypedValue.COMPLEX_UNIT_SP, RESULT_FINAL_SIZE);
+
+        equationText.setText("");
+        equationText.setVisibility(View.GONE);
+
+        expression = removeDotZero(v);
+        isResultFinalized = true;
     }
 
     /* ================= RENDER ================= */
@@ -154,10 +181,10 @@ public class MainActivity extends AppCompatActivity {
     private void render() {
         equationText.setText(expression);
 
-        Double v = evaluatePreview();
-        if (v != null) {
+        Double v = evaluate();
+        if (v != null && !isResultFinalized) {
             resultText.setText(df.format(v));
-        } else {
+        } else if (!isResultFinalized) {
             String last = lastNumber();
             resultText.setText(last.isEmpty() || "-".equals(last) ? "0" : df.format(Double.parseDouble(last)));
         }
@@ -165,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* ================= EVALUATION ================= */
 
-    private Double evaluatePreview() {
+    private Double evaluate() {
         try {
             if (expression.isEmpty()) return null;
             char last = expression.charAt(expression.length() - 1);
@@ -190,18 +217,13 @@ public class MainActivity extends AppCompatActivity {
             if (Character.isDigit(c) || c == '.') {
                 num.append(c);
             } else if (isOperator(c)) {
-                if (c == '-' && (i == 0 || isOperator(s.charAt(i - 1)))) {
-                    num.append('-');
-                } else {
-                    if (num.length() > 0) {
-                        tokens.add(num.toString());
-                        num.setLength(0);
-                    }
-                    tokens.add(String.valueOf(c));
+                if (num.length() > 0) {
+                    tokens.add(num.toString());
+                    num.setLength(0);
                 }
+                tokens.add(String.valueOf(c));
             }
         }
-
         if (num.length() > 0) tokens.add(num.toString());
         return tokens;
     }
@@ -211,12 +233,10 @@ public class MainActivity extends AppCompatActivity {
         Deque<String> ops = new ArrayDeque<>();
 
         for (String t : tokens) {
-            if (!isOpToken(t)) {
-                rpn.add(t);
-            } else {
-                while (!ops.isEmpty() && precedence(ops.peek()) >= precedence(t)) {
+            if (!isOpToken(t)) rpn.add(t);
+            else {
+                while (!ops.isEmpty() && precedence(ops.peek()) >= precedence(t))
                     rpn.add(ops.pop());
-                }
                 ops.push(t);
             }
         }
@@ -224,17 +244,14 @@ public class MainActivity extends AppCompatActivity {
 
         Deque<Double> st = new ArrayDeque<>();
         for (String t : rpn) {
-            if (!isOpToken(t)) {
-                st.push(Double.parseDouble(t));
-            } else {
-                double b = st.pop();
-                double a = st.pop();
-                switch (t) {
-                    case "+": st.push(a + b); break;
-                    case "-": st.push(a - b); break;
-                    case "×": st.push(a * b); break;
-                    case "/": st.push(a / b); break;
-                }
+            if (!isOpToken(t)) st.push(Double.parseDouble(t));
+            else {
+                double b = st.pop(), a = st.pop();
+                st.push(
+                        "+".equals(t) ? a + b :
+                                "-".equals(t) ? a - b :
+                                        "×".equals(t) ? a * b : a / b
+                );
             }
         }
         return st.pop();
@@ -245,6 +262,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* ================= UTIL ================= */
+
+    private void resetAll() {
+        expression = "";
+        isResultFinalized = false;
+        resetResultStyle();
+        equationText.setVisibility(View.VISIBLE);
+        render();
+    }
+
+    private void resetResultStyle() {
+        resultText.setAlpha(0.5f);
+        resultText.setTypeface(null, Typeface.NORMAL);
+        resultText.setTextSize(TypedValue.COMPLEX_UNIT_SP, RESULT_PREVIEW_SIZE);
+    }
 
     private boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '×' || c == '/';
@@ -257,7 +288,6 @@ public class MainActivity extends AppCompatActivity {
     private String lastNumber() {
         int i = expression.length() - 1;
         while (i >= 0 && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) i--;
-        if (i >= 0 && expression.charAt(i) == '-' && (i == 0 || isOperator(expression.charAt(i - 1)))) i--;
         return expression.substring(i + 1);
     }
 
@@ -268,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void toggleSign() {
         String last = lastNumber();
-        if (last.isEmpty() || "-".equals(last)) return;
+        if (last.isEmpty()) return;
         replaceLastNumber(last.startsWith("-") ? last.substring(1) : "-" + last);
     }
 

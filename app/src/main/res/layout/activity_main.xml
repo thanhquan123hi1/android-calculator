@@ -34,11 +34,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Keypad -->
+    <!-- Row 1 -->
+
     <TextView
         android:id="@+id/resultText"
         android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="35dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="37dp"
         android:alpha="0.5"
         android:gravity="end"
         android:text=""
@@ -47,10 +50,9 @@
         android:textStyle="normal"
         app:layout_constraintBottom_toTopOf="@id/btnAC"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Keypad -->
-    <!-- Row 1 -->
     <Button
         android:id="@+id/btnAC"
         style="@style/CalculatorButton.Special"
