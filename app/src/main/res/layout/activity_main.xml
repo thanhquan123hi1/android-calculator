@@ -24,30 +24,30 @@
     <TextView
         android:id="@+id/equationText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginBottom="8dp"
         android:gravity="end"
         android:text=""
-        android:textSize="24sp"
         android:textColor="@color/calculator_text"
-        android:alpha="0.6"
+        android:textSize="48sp"
         app:layout_constraintBottom_toTopOf="@id/resultText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="8dp"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/resultText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginBottom="35dp"
+        android:alpha="0.5"
         android:gravity="end"
         android:text=""
-        android:textSize="48sp"
-        android:textStyle="bold"
         android:textColor="@color/calculator_text"
+        android:textSize="30sp"
+        android:textStyle="normal"
         app:layout_constraintBottom_toTopOf="@id/btnAC"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="32dp"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Keypad -->
     <!-- Row 1 -->
