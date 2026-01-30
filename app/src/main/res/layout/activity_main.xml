@@ -10,15 +10,6 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <!-- Theme Switcher -->
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/themeSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:thumbIcon="@drawable/ic_moon"/>
 
     <!-- Display -->
     <TextView

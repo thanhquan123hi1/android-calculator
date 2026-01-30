@@ -1,7 +1,7 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Calculator" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<resources>
+    <style name="Theme.Calculator" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/calculator_background</item>
+        <item name="android:statusBarColor">@color/calculator_background</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

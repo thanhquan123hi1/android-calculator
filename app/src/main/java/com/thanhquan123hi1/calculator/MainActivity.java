@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView equationText; // Input (raw)
     private TextView resultText;   // Preview / Final
-    private MaterialSwitch themeSwitch;
 
     private String expression = "";
     private boolean isResultFinalized = false;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
         equationText = findViewById(R.id.equationText);
         resultText = findViewById(R.id.resultText);
-        themeSwitch = findViewById(R.id.themeSwitch);
 
         initTheme();
         bindButtons();
@@ -51,15 +49,12 @@ public class MainActivity extends AppCompatActivity {
 
     //theme
     private void initTheme() {
-        int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        themeSwitch.setChecked(mode == Configuration.UI_MODE_NIGHT_YES);
-
-        themeSwitch.setOnCheckedChangeListener((v, checked) ->
-                AppCompatDelegate.setDefaultNightMode(
-                        checked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-                )
+        AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         );
     }
+
+
 
     //buttons
 
@@ -213,9 +208,14 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
 
-            if (Character.isDigit(c) || c == '.') {
+            // DẤU ÂM (unary minus)
+            if (c == '-' && (i == 0 || isOperator(s.charAt(i - 1)))) {
                 num.append(c);
-            } else if (isOperator(c)) {
+            }
+            else if (Character.isDigit(c) || c == '.') {
+                num.append(c);
+            }
+            else if (isOperator(c)) {
                 if (num.length() > 0) {
                     tokens.add(num.toString());
                     num.setLength(0);
@@ -223,9 +223,14 @@ public class MainActivity extends AppCompatActivity {
                 tokens.add(String.valueOf(c));
             }
         }
-        if (num.length() > 0) tokens.add(num.toString());
+
+        if (num.length() > 0) {
+            tokens.add(num.toString());
+        }
+
         return tokens;
     }
+
 
     private double eval(List<String> tokens) {
         List<String> rpn = new ArrayList<>();
