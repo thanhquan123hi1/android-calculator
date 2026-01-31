@@ -155,7 +155,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void onEquals() {
         Double v = evaluate();
-        if (v == null) return;
+
+        if (v == null) {
+            String last = lastNumber();
+            if (last.isEmpty() || "-".equals(last)) return;
+            try {
+                v = Double.parseDouble(last);
+            } catch (Exception e) {
+                return;
+            }
+        }
 
         // FINAL RESULT
         resultText.setText(df.format(v));
@@ -170,19 +179,40 @@ public class MainActivity extends AppCompatActivity {
         isResultFinalized = true;
     }
 
+
     //render
 
     private void render() {
         equationText.setText(expression);
 
+        if (isResultFinalized) return;
+
         Double v = evaluate();
-        if (v != null && !isResultFinalized) {
+        if (v != null) {
             resultText.setText(df.format(v));
-        } else if (!isResultFinalized) {
-            String last = lastNumber();
-            resultText.setText(last.isEmpty() || "-".equals(last) ? "0" : df.format(Double.parseDouble(last)));
+            return;
+        }
+
+        if (!expression.isEmpty() && isOperator(expression.charAt(expression.length() - 1))) {
+            String temp = expression.substring(0, expression.length() - 1);
+            try {
+                Double tempVal = eval(tokenize(temp));
+                resultText.setText(df.format(tempVal));
+            } catch (Exception e) {
+                resultText.setText("0");
+            }
+            return;
+        }
+
+        // fallback
+        String last = lastNumber();
+        if (last.isEmpty() || "-".equals(last)) {
+            resultText.setText("0");
+        } else {
+            resultText.setText(df.format(Double.parseDouble(last)));
         }
     }
+
 
     //danh gia
 
@@ -291,9 +321,18 @@ public class MainActivity extends AppCompatActivity {
 
     private String lastNumber() {
         int i = expression.length() - 1;
-        while (i >= 0 && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) i--;
+        while (i >= 0 && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
+            i--;
+        }
+
+        if (i >= 0 && expression.charAt(i) == '-' &&
+                (i == 0 || isOperator(expression.charAt(i - 1)))) {
+            i--;
+        }
+
         return expression.substring(i + 1);
     }
+
 
     private void replaceLastNumber(String s) {
         String last = lastNumber();
@@ -301,10 +340,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleSign() {
+
+        if (isResultFinalized) {
+            isResultFinalized = false;
+            resetResultStyle();
+            equationText.setVisibility(View.VISIBLE);
+        }
+
         String last = lastNumber();
-        if (last.isEmpty()) return;
-        replaceLastNumber(last.startsWith("-") ? last.substring(1) : "-" + last);
+        if (last.isEmpty() || "-".equals(last)) return;
+
+        replaceLastNumber(
+                last.startsWith("-") ? last.substring(1) : "-" + last
+        );
     }
+
 
     private void applyPercent() {
         String last = lastNumber();
